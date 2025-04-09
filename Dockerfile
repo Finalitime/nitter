@@ -8,6 +8,7 @@ WORKDIR /src/nitter
 COPY nitter.nimble .
 RUN nimble install -y --depsOnly
 
+# Copy everything except your final nitter.conf
 COPY . .
 RUN nimble build -d:danger -d:lto -d:strip --mm:refc \
     && nimble scss \
@@ -19,6 +20,8 @@ RUN apk --no-cache add pcre ca-certificates
 
 COPY --from=nim /src/nitter/nitter ./nitter
 COPY --from=nim /src/nitter/public ./public
+
+# Copy your custom config LAST so it’s not overwritten
 COPY nitter.conf ./nitter.conf
 
 EXPOSE 8080
