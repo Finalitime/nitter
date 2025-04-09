@@ -1,31 +1,28 @@
-FROM nimlang/nim:2.2.0-alpine-regular as nim
+FROM nimlang/nim:2.2.0-alpine-regular as builder
 LABEL maintainer="setenforce@protonmail.com"
 
 RUN apk --no-cache add libsass-dev pcre
 
-WORKDIR /src/nitter
+WORKDIR /app
 
 COPY nitter.nimble .
 RUN nimble install -y --depsOnly
 
-# Copy everything except your final nitter.conf
 COPY . .
 RUN nimble build -d:danger -d:lto -d:strip --mm:refc \
     && nimble scss \
     && nimble md
 
 FROM alpine:latest
-WORKDIR /src/
+WORKDIR /app
 RUN apk --no-cache add pcre ca-certificates
 
-COPY --from=nim /src/nitter/nitter ./nitter
-COPY --from=nim /src/nitter/public ./public
-
-# Copy your custom config LAST so it’s not overwritten
-COPY nitter.conf ./nitter.conf
+COPY --from=builder /app/nitter ./nitter
+COPY --from=builder /app/public ./public
+COPY nitter.conf ./nitter.conf 
 
 EXPOSE 8080
-RUN adduser -h /src/ -D -s /bin/sh nitter
+RUN adduser -h /app -D -s /bin/sh nitter
 USER nitter
 
 CMD ./nitter
