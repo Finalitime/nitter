@@ -20,10 +20,9 @@ RUN apk --no-cache add pcre ca-certificates
 COPY --from=builder /app/nitter ./nitter
 COPY --from=builder /app/public ./public
 COPY nitter.conf ./nitter.conf
-CMD ./nitter -c ./nitter.conf
 
 EXPOSE 8080
 RUN adduser -h /app -D -s /bin/sh nitter
 USER nitter
 
-CMD ./nitter
+CMD ./nitter -c ./nitter.conf
