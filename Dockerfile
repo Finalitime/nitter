@@ -19,7 +19,7 @@ RUN apk --no-cache add pcre ca-certificates
 
 COPY --from=nim /src/nitter/nitter ./nitter
 COPY --from=nim /src/nitter/public ./public
-COPY nitter.conf ./nitter.conf  # ✅ your custom config goes here
+COPY nitter.conf ./nitter.conf
 
 EXPOSE 8080
 RUN adduser -h /src/ -D -s /bin/sh nitter
